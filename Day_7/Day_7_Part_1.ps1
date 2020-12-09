@@ -1,11 +1,8 @@
 ###
-### What a mess.
-### Output is close, but off by 4.
-### Spent hours going through each step, but I can't see where it's going wrong.
-### :(
+### https://adventofcode.com/2020/day/7
 ###
-
-
+### What a mess!
+###
 
 $InputData = Get-Content $PSScriptRoot\input.txt
 
@@ -46,19 +43,17 @@ function Get-BagCount {
         $bagsContainingColor
     )
 
-    #Write-Host "Count: $($global:CountedBags.count)" -ForegroundColor Red
-    #Write-Host $bagsContainingColor.color -ForegroundColor Green
-
+    ##
+    ## recurse through all bags and add to count variable if contained in another bag
+    ##
     foreach ($bagColor in $bagsContainingColor.color){
-        <#if (($bagColor -eq "no other") -or ($bagColor -eq "shiny gold")){
+        if (($bagColor -eq "no other") -or ($bagColor -eq "shiny gold")){
             continue
-        }#>
-        #Write-Host "Searching for parent bags of $bagColor" -ForegroundColor Yellow
+        }
         $bagsContainingColor = $bags.where({$_.validcontainerbags.color -contains $bagColor})
-        #Write-Host "Bags containing $bagColor : $($bagsContainingColor.color)"
         foreach ($bag in $bagsContainingColor){
+            Write-Host $bag.color -fore Green
             if ($global:countedBags -contains $bag.color){
-                Write-Host "$($bag.color) already counted. Skipping.."
                 continue
             } else {
                 $global:countedBags += $bag.color
@@ -68,10 +63,8 @@ function Get-BagCount {
     }
 }
 
-
-
-
 $bagsContainingShinyGold = $bags.where({$_.validcontainerbags.color -contains "shiny gold"})
+$global:countedBags += $bagsContainingShinyGold.color
 
 Get-BagCount $bagsContainingShinyGold
 
