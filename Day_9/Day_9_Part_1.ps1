@@ -9,7 +9,7 @@ $numList = [System.Collections.Generic.List[System.Object]]($inputData[0..24])
 $startingIndex = 25
 $sums = @{}
 
-function Update-SumsTable {
+function Write-SumsTable {
     param (
         [object]$NumberList,
         [hashtable]$SumsTable
@@ -46,3 +46,4 @@ for ($i = $startingIndex; $i -lt $inputData.Length; $i++) {
     $numList.Add($num)
 }
 
+$num
