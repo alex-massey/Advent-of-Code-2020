@@ -45,5 +45,3 @@ for ($i = $startingIndex; $i -lt $inputData.Length; $i++) {
     $numList.RemoveAt(0)
     $numList.Add($num)
 }
-
-$num
