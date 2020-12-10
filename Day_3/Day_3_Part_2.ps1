@@ -1,3 +1,7 @@
+##
+## https://adventofcode.com/2020/day/3
+##
+
 $InputData = Get-Content $PSScriptRoot\input.txt
 
 $LineHash = @{}

@@ -1,3 +1,7 @@
+##
+## https://adventofcode.com/2020/day/5
+##
+
 $InputData = Get-Content $PSScriptRoot\input.txt
 
 $AssignedSeatIDs = @()

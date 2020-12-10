@@ -1,3 +1,7 @@
+##
+## https://adventofcode.com/2020/day/1
+##
+
 $input_nums = Get-Content $PSScriptRoot\input_numbers.txt
 
 foreach ($number1 in $input_nums){

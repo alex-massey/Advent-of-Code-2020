@@ -1,3 +1,7 @@
+##
+## https://adventofcode.com/2020/day/6
+##
+
 $InputData = Get-Content $PSScriptRoot\input.txt -Raw
 
 $groups = $InputData -split "\n\r"
