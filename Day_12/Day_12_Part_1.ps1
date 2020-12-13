@@ -14,88 +14,79 @@ function Move-Ship {
         $Magnitude
     )
 
-    $global:lat += $global:waypoint.N * $Magnitude
-    $global:long += $global:waypoint.E * $Magnitude
-    $global:lat -= $global:waypoint.S * $Magnitude
-    $global:long -= $global:waypoint.W * $Magnitude
+    switch ($Direction) {
+        "N" {
+            $global:lat += $Magnitude
+        }
+        "E" {
+            $global:long += $Magnitude
+        }
+        "S" {
+            $global:lat -= $Magnitude
+        }
+        "W" {
+            $global:long -= $Magnitude
+        }
+    }
 }
 
-function Set-Waypoint {
+function Set-Vector {
     [CmdletBinding()]
     param (
         [Parameter()]
-        [hashtable]
-        $CurrentWaypoint,
+        [int]
+        $CurrentVector,
         [int]
         $RotationAmt,
         [char]
         $RotationDir
     )
 
-    $global:waypoint = @{"N"=0;"E"=0;"S"=0;"W"=0}
-
     if ($RotationDir -eq "R") {
-        if ($RotationAmt -eq 90){
-            $global:waypoint.N = $CurrentWaypoint.W
-            $global:waypoint.E = $CurrentWaypoint.N
-            $global:waypoint.S = $CurrentWaypoint.E
-            $global:waypoint.W = $CurrentWaypoint.S
-        } elseif ($RotationAmt -eq 180){
-            $global:waypoint.N = $CurrentWaypoint.S
-            $global:waypoint.E = $CurrentWaypoint.W
-            $global:waypoint.S = $CurrentWaypoint.N
-            $global:waypoint.W = $CurrentWaypoint.E
-        } elseif ($RotationAmt -eq 270){
-            $global:waypoint.N = $CurrentWaypoint.E
-            $global:waypoint.E = $CurrentWaypoint.S
-            $global:waypoint.S = $CurrentWaypoint.W
-            $global:waypoint.W = $CurrentWaypoint.N
+        $newVector = $CurrentVector + $RotationAmt
+        if ($newVector -ge 360) {
+            $newVector -= 360
         }
     }
     elseif ($RotationDir -eq "L") {
-        if ($RotationAmt -eq 90){
-            $global:waypoint.N = $CurrentWaypoint.E
-            $global:waypoint.E = $CurrentWaypoint.S
-            $global:waypoint.S = $CurrentWaypoint.W
-            $global:waypoint.W = $CurrentWaypoint.N
-        } elseif ($RotationAmt -eq 180){
-            $global:waypoint.N = $CurrentWaypoint.S
-            $global:waypoint.E = $CurrentWaypoint.W
-            $global:waypoint.S = $CurrentWaypoint.N
-            $global:waypoint.W = $CurrentWaypoint.E
-        } elseif ($RotationAmt -eq 270){
-            $global:waypoint.N = $CurrentWaypoint.W
-            $global:waypoint.E = $CurrentWaypoint.N
-            $global:waypoint.S = $CurrentWaypoint.E
-            $global:waypoint.W = $CurrentWaypoint.S
+        $newVector = $CurrentVector - $RotationAmt
+        if ($newVector -lt 0) {
+            $newVector += 360
         }
     }
+    return $newVector
 }
 
+$dir = "E"
+$vec = 90
+$NESW = "N","E","S","W"
 $global:lat = 0
 $global:long = 0
-$global:waypoint = @{"N"=1;"E"=10;"S"=0;"W"=0}
 
 foreach ($line in $inputData) {
-    #$line
-    #$global:waypoint
     $cmd = $line[0]
     $amt = $line.Substring(1, $line.Length - 1)
 
 
     if (($cmd -eq "R") -or ($cmd -eq "L")) {
-        Set-Waypoint -CurrentWaypoint $global:waypoint -RotationDir $cmd -RotationAmt $amt
+        $vec = Set-Vector -CurrentVector $vec -RotationDir $cmd -RotationAmt $amt
+        switch ($vec) {
+            0 { $dir = "N" }
+            90 { $dir = "E" }
+            180 { $dir = "S" }
+            270 { $dir = "W" }
+        }
     }
     elseif ($NESW -contains $cmd) {
         switch ($cmd) {
-            "N" { $global:waypoint.N += $amt }
-            "E" { $global:waypoint.E += $amt }
-            "S" { $global:waypoint.S += $amt }
-            "W" { $global:waypoint.W += $amt }
+            "N" { Move-Ship -Direction "N" -Magnitude $amt }
+            "E" { Move-Ship -Direction "E" -Magnitude $amt }
+            "S" { Move-Ship -Direction "S" -Magnitude $amt }
+            "W" { Move-Ship -Direction "W" -Magnitude $amt }
         }
     }
     elseif ($cmd = "F") {
-        Move-Ship -Magnitude $amt
+        Move-Ship -Direction $dir -Magnitude $amt
     }
 }
 
