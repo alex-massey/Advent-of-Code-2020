@@ -4,45 +4,38 @@
 
 $inputData = Get-Content $PSScriptRoot\input.txt
 
-$rounds = @{}
-# Keys are numbers, Values are times spoken
-$nums = @{}
+$finalRound = 2020
+
+$rounds = [object[]]::new($finalRound + 1)
+$nums = [System.Collections.ArrayList][object[]]::new($finalRound + 1)
 $i = 1
-foreach ($number in $inputData.split(",")) {
-    $rounds.$i = $number
-    $nums.$number = [PSCustomObject]@{
-        TimesSpoken     = 0
-        RoundLastSpoken = $i
-    }
+$numbers = $inputData.split(",") | ForEach-Object { ([int]::parse($_)) }
+foreach ($number in $numbers) {
+    $rounds[$i] = $number
+    $nums[$number] = $i
     $i++
 }
 
-$count = $nums.Count
-$nextNumSpoken = $number
+$count = $numbers.Count + 1
+$rounds[$count] = 0
 do {
     $count++
     $prevRound = $count - 1
-    $prevNum = $rounds.$prevRound
-    "Round $count"
-    "Previous round: $prevRound"
-    $nextNumSpoken = $nums["$prevNum"].TimesSpoken
-    $rounds.$count = $nextNumSpoken
-    "The last number spoken was $($rounds.$prevRound)"
-    "It was spoken $nextNumSpoken times already, which is the number to be spoken this round"
-    #$rounds.$count = $nextNumSpoken
-    if ($nums.contains("$nextNumSpoken")) {
-        "This has been spoken before"
-        $diff = $prevRound - $nums[$prevRound].RoundLastSpoken
-        "The difference between the last round and the previous time it was spoken is $diff"
-        "Which will be the next word spoken"
+    $prevNum = $rounds[$prevRound]
+
+    if ($nums[$prevNum]) {
+        $lastRoundSpoken = $nums[$prevNum]
+        $diff = $prevRound - $lastRoundSpoken
         $nextNumSpoken = $diff
-        $nums["$nextNumSpoken"].TimesSpoken = $nums["$nextNumSpoken"].TimesSpoken + 1
     }
     else {
-        "This has not been spoken before. Adding to nums."
-        $nums.$number = [PSCustomObject]@{
-            TimesSpoken     = 0
-            RoundLastSpoken = $count
-        }
+        $nums[$nextNumSpoken] = $prevRound
+        $nextNumSpoken = 0
     }
-} until ($count -ge 2020)
+    $rounds[$count] = $nextNumSpoken
+    $nums[$prevNum] = $prevRound
+
+} until ($count -ge $finalRound)
+
+return $nextNumSpoken
+
